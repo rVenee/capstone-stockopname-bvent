@@ -70,3 +70,7 @@ capstone-stockopname-bvent/
 | Database | PostgreSQL |
 | LLM | Open-source via Ollama (mis. Qwen2.5) atau API LLM |
 | Deployment | Docker Compose |
+
+# Dokumentasi
+
+- Link Design awal di Figma : https://www.figma.com/design/SdDKmsdYB6VObGEflD4Rp5/Project-Capstone?node-id=0-1&t=j4dBvPluHxCe9Oln-1
