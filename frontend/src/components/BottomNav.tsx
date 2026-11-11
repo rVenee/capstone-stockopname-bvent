@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
@@ -10,8 +11,9 @@ const items = [
   { name: "profile", label: "Profil", icon: "person-outline", iconActive: "person" },
 ] as const;
 
-export default function BottomNav({ state, navigation }: { state: any; navigation: any }) {
+export default function BottomNav({ state }: { state: any }) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [keyboardTampil, setKeyboardTampil] = useState(false);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function BottomNav({ state, navigation }: { state: any; navigatio
           return (
             <Pressable
               key={it.name}
-              onPress={() => navigation.navigate(it.name)}
+              onPress={() => router.navigate(`/${it.name}` as any)}
               style={styles.item}
               hitSlop={8}
             >
