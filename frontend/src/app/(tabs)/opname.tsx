@@ -14,12 +14,19 @@ import { formatWaktu } from "../../data/transaksi";
 export default function Opname() {
   const { sesi, draft, items, mulaiOpname } = useBarang();
   const [page, setPage] = useState(1);
+  const [memulai, setMemulai] = useState(false);
   const terisi = Object.values(draft).filter((v) => v.trim() !== "").length;
   const { items: halaman, current, totalPages } = paginate(sesi, page);
 
   const mulai = () => {
-    const buka = () => {
-      mulaiOpname();
+    const buka = async () => {
+      setMemulai(true);
+      const hasil = await mulaiOpname();
+      setMemulai(false);
+      if (!hasil.ok) {
+        Alert.alert("Gagal memulai sesi", hasil.error);
+        return;
+      }
       router.push("/opname-hitung" as any);
     };
     if (terisi > 0) {
@@ -47,7 +54,7 @@ export default function Opname() {
                 Hitung barang di gudang, masukkan jumlah fisiknya, lalu terapkan selisihnya ke sistem.
               </Text>
               <View style={{ marginTop: 14 }}>
-                <PrimaryButton label="Mulai Opname Baru" onPress={mulai} />
+                <PrimaryButton label="Mulai Opname Baru" onPress={mulai} loading={memulai} />
               </View>
             </Card>
 
@@ -86,7 +93,7 @@ export default function Opname() {
               </View>
               {selisih.map((b) => (
                 <Text key={b.barangId} style={styles.baris}>
-                  {b.emoji} {b.nama}: sistem {b.sistem} → fisik {b.fisik} ({formatSelisih(b.selisih)} {b.satuan})
+                  {b.nama}: sistem {b.sistem} → fisik {b.fisik} ({formatSelisih(b.selisih)} {b.satuan})
                 </Text>
               ))}
             </Card>

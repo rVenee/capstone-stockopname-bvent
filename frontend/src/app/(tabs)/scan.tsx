@@ -11,6 +11,7 @@ import { colors, fonts, radius } from "../../constants/theme";
 import { useBarang } from "../../data/BarangContext";
 import { Barang, getStatus } from "../../data/barang";
 import { cariByKode } from "../../data/kode";
+import FotoBarang from "../../components/FotoBarang";
 
 type Hasil = { kode: string; barang?: Barang };
 
@@ -70,7 +71,7 @@ export default function Scan() {
         ) : b && s ? (
           <Card style={{ marginTop: 16 }}>
             <View style={styles.head}>
-              <Text style={styles.emoji}>{b.emoji}</Text>
+              <FotoBarang gambar={b.gambar} emoji={b.emoji} size={56} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.nama}>{b.nama}</Text>
                 <Text style={styles.sub}>

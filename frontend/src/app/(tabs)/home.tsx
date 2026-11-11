@@ -6,6 +6,7 @@ import { colors, fonts, radius, shadow } from "../../constants/theme";
 import { useBarang } from "../../data/BarangContext";
 import { namaDepan, useUser } from "../../data/UserContext";
 import { ringkasTransaksi } from "../../data/transaksi";
+import AvatarProfil from "../../components/AvatarProfil";
 
 const menus = [
   { label: "Tren &\nPrediksi", icon: "stats-chart", href: "/tren" },
@@ -33,7 +34,7 @@ export default function Home() {
           <Text style={styles.company}>{user.perusahaan}</Text>
         </View>
         <Pressable style={styles.avatar} onPress={() => router.navigate("/profile" as any)}>
-          <Ionicons name="person" size={34} color={colors.navy} />
+           <AvatarProfil size={56} />
         </Pressable>
       </View>
 
