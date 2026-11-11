@@ -4,14 +4,18 @@ import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, Te
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import PrimaryButton from "../components/PrimaryButton";
 import { colors, fonts } from "../constants/theme";
+import { useUser } from "../data/UserContext";
 
 export default function Login() {
   const insets = useSafeAreaInsets();
+  const { login } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [company, setCompany] = useState("");
+  const [memuat, setMemuat] = useState(false);
 
-  const masuk = () => {
+  const masuk = async () => {
+    if (memuat) return;
     if (!email.trim() || !password) {
       Alert.alert("Data belum lengkap", "Email dan password wajib diisi.");
       return;
@@ -20,7 +24,15 @@ export default function Login() {
       Alert.alert("Email tidak valid", "Periksa kembali alamat email.");
       return;
     }
-    router.replace("/home");
+    setMemuat(true);
+    try {
+      await login(email, password, company);
+      router.replace("/");
+    } catch (e: any) {
+      Alert.alert("Login gagal", e?.message ?? "Terjadi kesalahan.");
+    } finally {
+      setMemuat(false);
+    }
   };
 
   return (
@@ -58,15 +70,16 @@ export default function Login() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Company Code"
+          placeholder="Kode Toko/Perusahaan/Gudang"
           placeholderTextColor={colors.textMuted}
           autoCapitalize="characters"
           value={company}
           onChangeText={setCompany}
+          onSubmitEditing={masuk}
         />
 
         <View style={{ marginTop: 28 }}>
-          <PrimaryButton label="Masuk" onPress={masuk} />
+          <PrimaryButton label="Masuk" onPress={masuk} loading={memuat} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
