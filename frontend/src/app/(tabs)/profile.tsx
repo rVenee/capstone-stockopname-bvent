@@ -1,24 +1,25 @@
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import PrimaryButton from "../../components/PrimaryButton";
 import ScreenHeader from "../../components/ScreenHeader";
+import PrimaryButton from "../../components/PrimaryButton";
+import AvatarProfil from "../../components/AvatarProfil";
+import { labelPeran, useUser } from "../../data/UserContext";
 import { colors, fonts, radius, shadow } from "../../constants/theme";
-import { useUser } from "../../data/UserContext";
 
 export default function Profile() {
-  const { user } = useUser();
+  const { user, izin, logout } = useUser();
 
   const fields = [
     { label: "Email", value: user.email, icon: "mail-outline" },
-    { label: "Phone Number", value: user.telepon, icon: "call-outline" },
+    { label: "Phone Number", value: user.telepon || "-", icon: "call-outline" },
     { label: "Password", value: "***********", icon: "lock-closed-outline" },
   ] as const;
 
   const keluar = () =>
     Alert.alert("Log out", "Yakin ingin keluar dari akun ini?", [
       { text: "Batal", style: "cancel" },
-      { text: "Log out", style: "destructive", onPress: () => router.replace("/login") },
+      { text: "Log out", style: "destructive", onPress: () => { logout(); router.replace("/login"); } },
     ]);
 
   return (
@@ -26,10 +27,10 @@ export default function Profile() {
       <ScreenHeader title="Profile" showBack={false} />
       <ScrollView contentContainerStyle={styles.body}>
         <View style={styles.avatar}>
-          <Ionicons name="person" size={64} color={colors.navy} />
+           <AvatarProfil size={114} />
         </View>
         <Text style={styles.nama}>{user.nama}</Text>
-        <Text style={styles.peran}>{user.peran}</Text>
+        <Text style={styles.peran}>{labelPeran(user.peran)}</Text>
         <Text style={styles.perusahaan}>{user.perusahaan}</Text>
 
         <View style={{ marginTop: 28, gap: 14 }}>
@@ -44,7 +45,29 @@ export default function Profile() {
           ))}
         </View>
 
-        <View style={{ marginTop: 28 }}>
+        <Pressable style={styles.menuRow} onPress={() => router.push("/kelola-data" as any)}>
+          <Ionicons name="swap-horizontal-outline" size={24} color={colors.navy} />
+          <Text style={styles.menuText}>Impor & Ekspor Data</Text>
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+        </Pressable>
+
+        {izin.kelolaPengguna ? (
+          <Pressable style={[styles.menuRow, { marginTop: 12 }]} onPress={() => router.push("/pengguna" as any)}>
+            <Ionicons name="people-outline" size={24} color={colors.navy} />
+            <Text style={styles.menuText}>Manajemen Pengguna</Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
+
+        {izin.resetData ? (
+          <Pressable style={[styles.menuRow, { marginTop: 12, borderColor: colors.danger }]} onPress={() => router.push("/reset-data" as any)}>
+            <Ionicons name="trash-outline" size={24} color={colors.danger} />
+            <Text style={[styles.menuText, { color: colors.danger }]}>Reset Data</Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
+
+        <View style={{ marginTop: 20 }}>
           <PrimaryButton label="Edit Profil" onPress={() => router.push("/profile-edit" as any)} />
         </View>
 
@@ -71,6 +94,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.md, paddingHorizontal: 18, paddingVertical: 16, ...shadow,
   },
   value: { flex: 1, fontFamily: fonts.regular, fontSize: 16, color: colors.text },
+  menuRow: {
+    flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.white, marginTop: 22,
+    borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 18, paddingVertical: 16,
+  },
+  menuText: { flex: 1, fontFamily: fonts.semibold, fontSize: 16, color: colors.navy },
   logout: {
     fontFamily: fonts.semibold, fontSize: 18, color: colors.primary, textAlign: "center", marginTop: 28, padding: 8,
   },
