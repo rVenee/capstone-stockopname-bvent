@@ -8,23 +8,15 @@ export type Barang = {
   stok: number;
   stokMin: number;
   harga: number;
-  emoji: string;
+  emoji: string; // ikon cadangan kalau barang belum punya foto
+  gambar?: string | null; // nama berkas foto di server
+  pemasok?: string;
+  kedaluwarsa?: string | null; // YYYY-MM-DD
+  jumlahPesanUlang?: number | null;
 };
 
-export const KATEGORI = ["Makanan", "Minuman", "Peralatan", "Lainnya"];
-export const SATUAN = ["pcs", "kg", "liter", "tray", "pack"];
-export const EMOJI = ["🍚", "🥛", "🥚", "🛢️", "🍜", "🍬", "🍵", "☕", "🧼", "📦"];
-
-export const initialBarang: Barang[] = [
-  { id: "1", nama: "Beras", kode: "123456789012", kategori: "Makanan", lokasi: "Rak A-1", satuan: "kg", stok: 15, stokMin: 20, harga: 14000, emoji: "🍚" },
-  { id: "2", nama: "Susu 1000ml", kode: "987654321098", kategori: "Minuman", lokasi: "Rak A-2", satuan: "pcs", stok: 25, stokMin: 20, harga: 25000, emoji: "🥛" },
-  { id: "3", nama: "Telur", kode: "123450987610", kategori: "Makanan", lokasi: "Rak B-1", satuan: "tray", stok: 25, stokMin: 10, harga: 52000, emoji: "🥚" },
-  { id: "4", nama: "Minyak Goreng", kode: "123098457610", kategori: "Makanan", lokasi: "Rak B-2", satuan: "liter", stok: 15, stokMin: 10, harga: 18000, emoji: "🛢️" },
-  { id: "5", nama: "Mi Instan", kode: "899100100201", kategori: "Makanan", lokasi: "Rak C-1", satuan: "pcs", stok: 6, stokMin: 10, harga: 3500, emoji: "🍜" },
-  { id: "6", nama: "Gula", kode: "899100100302", kategori: "Makanan", lokasi: "Rak C-2", satuan: "kg", stok: 8, stokMin: 15, harga: 17000, emoji: "🍬" },
-  { id: "7", nama: "Teh Celup", kode: "899100100403", kategori: "Minuman", lokasi: "Rak A-3", satuan: "pack", stok: 30, stokMin: 12, harga: 9000, emoji: "🍵" },
-  { id: "8", nama: "Kopi Bubuk", kode: "899100100504", kategori: "Minuman", lokasi: "Rak A-3", satuan: "pack", stok: 14, stokMin: 12, harga: 22000, emoji: "☕" },
-];
+// Pilihan ikon cadangan (dipakai kalau barang belum punya foto)
+export const EMOJI = ["📦", "🍚", "🥛", "🥚", "🛢️", "🍜", "🍬", "🍵", "☕", "🧼", "🥬", "🐟", "🍞", "🧃"];
 
 export type StatusInfo = { label: string; variant: "danger" | "warning" | "success" };
 
@@ -35,5 +27,31 @@ export function getStatus(b: Barang): StatusInfo {
 }
 
 export function formatRupiah(n: number) {
-  return "Rp " + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return "Rp " + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/** "2026-12-31" -> "31-12-2026" */
+export function formatTanggal(iso?: string | null) {
+  if (!iso) return "-";
+  const [y, m, d] = iso.split("-");
+  return y && m && d ? `${d}-${m}-${y}` : iso;
+}
+
+/** "31-12-2026" atau "2026-12-31" -> "2026-12-31"; teks kosong -> null; tidak valid -> undefined */
+export function keTanggalIso(teks: string): string | null | undefined {
+  const t = teks.trim();
+  if (!t) return null;
+  let y: string, m: string, d: string;
+  let cocok = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (cocok) [, y, m, d] = cocok;
+  else {
+    cocok = t.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    if (!cocok) return undefined;
+    [, d, m, y] = cocok;
+  }
+  const dt = new Date(Number(y), Number(m) - 1, Number(d));
+  if (dt.getFullYear() !== Number(y) || dt.getMonth() !== Number(m) - 1 || dt.getDate() !== Number(d)) {
+    return undefined;
+  }
+  return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
 }

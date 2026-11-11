@@ -5,13 +5,15 @@ export type Transaksi = {
   barangId: string;
   nama: string;
   emoji: string;
+  gambar?: string | null;
   satuan: string;
   jenis: Jenis;
   jumlah: number;
-  stokSebelum: number;
-  stokSesudah: number;
+  stokSebelum: number | null;
+  stokSesudah: number | null;
   catatan: string;
   waktu: number;
+  oleh?: string;
 };
 
 const BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -36,14 +38,3 @@ export function ringkasTransaksi(t: Transaksi) {
       : "disesuaikan (opname)";
   return `[${formatJam(t.waktu)}] ${t.nama} ${aksi}`;
 }
-
-const menitLalu = (m: number) => Date.now() - m * 60000;
-
-export const initialTransaksi: Transaksi[] = [
-  { id: "t1", barangId: "4", nama: "Minyak Goreng", emoji: "🛢️", satuan: "liter", jenis: "keluar", jumlah: 1, stokSebelum: 16, stokSesudah: 15, catatan: "", waktu: menitLalu(20) },
-  { id: "t2", barangId: "1", nama: "Beras", emoji: "🍚", satuan: "kg", jenis: "keluar", jumlah: 5, stokSebelum: 20, stokSesudah: 15, catatan: "Penjualan harian", waktu: menitLalu(180) },
-  { id: "t3", barangId: "2", nama: "Susu 1000ml", emoji: "🥛", satuan: "pcs", jenis: "masuk", jumlah: 10, stokSebelum: 15, stokSesudah: 25, catatan: "Kiriman supplier", waktu: menitLalu(60 * 24) },
-  { id: "t4", barangId: "5", nama: "Mi Instan", emoji: "🍜", satuan: "pcs", jenis: "keluar", jumlah: 4, stokSebelum: 10, stokSesudah: 6, catatan: "", waktu: menitLalu(60 * 26) },
-  { id: "t5", barangId: "6", nama: "Gula", emoji: "🍬", satuan: "kg", jenis: "keluar", jumlah: 7, stokSebelum: 15, stokSesudah: 8, catatan: "", waktu: menitLalu(60 * 50) },
-  { id: "t6", barangId: "3", nama: "Telur", emoji: "🥚", satuan: "tray", jenis: "masuk", jumlah: 10, stokSebelum: 15, stokSesudah: 25, catatan: "Restock mingguan", waktu: menitLalu(60 * 72) },
-];

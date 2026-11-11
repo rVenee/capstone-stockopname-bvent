@@ -4,6 +4,7 @@ export type BarisOpname = {
   barangId: string;
   nama: string;
   emoji: string;
+  gambar?: string | null;
   satuan: string;
   sistem: number;
   fisik: number;
@@ -29,6 +30,7 @@ export function buatBaris(items: Barang[], draft: Record<string, string>): Baris
       barangId: b.id,
       nama: b.nama,
       emoji: b.emoji,
+      gambar: b.gambar,
       satuan: b.satuan,
       sistem: b.stok,
       fisik,
@@ -47,16 +49,3 @@ export function formatSelisih(n: number) {
   if (n === 0) return "Sesuai";
   return n > 0 ? `+${n}` : `−${Math.abs(n)}`;
 }
-
-export const initialSesi: SesiOpname[] = [
-  {
-    id: "s1",
-    waktu: Date.now() - 7 * 86400000,
-    catatan: "Opname mingguan",
-    baris: [
-      { barangId: "3", nama: "Telur", emoji: "🥚", satuan: "tray", sistem: 15, fisik: 15, selisih: 0 },
-      { barangId: "5", nama: "Mi Instan", emoji: "🍜", satuan: "pcs", sistem: 10, fisik: 10, selisih: 0 },
-      { barangId: "6", nama: "Gula", emoji: "🍬", satuan: "kg", sistem: 15, fisik: 14, selisih: -1 },
-    ],
-  },
-];

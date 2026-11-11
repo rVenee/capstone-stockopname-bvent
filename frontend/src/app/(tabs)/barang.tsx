@@ -1,21 +1,24 @@
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import Pagination, { paginate } from "../../components/Pagination";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import ScreenHeader from "../../components/ScreenHeader";
 import StatusBadge from "../../components/StatusBadge";
-import { colors, fonts, radius, shadow } from "../../constants/theme";
+import FotoBarang from "../../components/FotoBarang";
+import Pagination, { paginate } from "../../components/Pagination";
 import { useBarang } from "../../data/BarangContext";
-import { getStatus, KATEGORI } from "../../data/barang";
-
-const FILTERS = ["All", ...KATEGORI];
+import { useUser } from "../../data/UserContext";
+import { getStatus } from "../../data/barang";
+import { colors, fonts, radius, shadow } from "../../constants/theme";
 
 export default function Barang() {
-  const { items } = useBarang();
+  const { items, kategori } = useBarang();
+  const { izin } = useUser();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
   const [page, setPage] = useState(1);
+
+  const filters = ["All", ...kategori];
 
   const data = items.filter(
     (b) =>
@@ -46,7 +49,7 @@ export default function Barang() {
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={FILTERS}
+          data={filters}
           keyExtractor={(f) => f}
           contentContainerStyle={styles.chips}
           renderItem={({ item: f }) => {
@@ -72,7 +75,15 @@ export default function Barang() {
         data={halaman}
         keyExtractor={(b) => b.id}
         contentContainerStyle={styles.list}
-        ListEmptyComponent={<Text style={styles.empty}>Barang tidak ditemukan.</Text>}
+        ListEmptyComponent={
+          <Text style={styles.empty}>
+            {items.length === 0
+              ? izin.kelolaBarang
+                ? "Belum ada barang. Tekan tombol + untuk menambah."
+                : "Belum ada barang."
+              : "Barang tidak ditemukan."}
+          </Text>
+        }
         ListFooterComponent={<Pagination current={current} total={totalPages} onChange={setPage} />}
         renderItem={({ item: b }) => {
           const s = getStatus(b);
@@ -81,9 +92,9 @@ export default function Barang() {
               style={({ pressed }) => [styles.row, pressed && { opacity: 0.85 }]}
               onPress={() => router.push({ pathname: "/barang-detail", params: { id: b.id } } as any)}
             >
-              <Text style={styles.emoji}>{b.emoji}</Text>
+              <FotoBarang gambar={b.gambar} emoji={b.emoji} size={52} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.nama}>{b.nama}</Text>
+                <Text style={styles.nama} numberOfLines={1}>{b.nama}</Text>
                 <Text style={styles.sub}>
                   Stok {b.stok} {b.satuan} · Min {b.stokMin}
                 </Text>
@@ -94,12 +105,14 @@ export default function Barang() {
         }}
       />
 
-      <Pressable
-        style={styles.fab}
-        onPress={() => router.push({ pathname: "/barang-form" } as any)}
-      >
-        <Ionicons name="add" size={32} color={colors.white} />
-      </Pressable>
+      {izin.kelolaBarang ? (
+        <Pressable
+          style={styles.fab}
+          onPress={() => router.push({ pathname: "/barang-form" } as any)}
+        >
+          <Ionicons name="add" size={32} color={colors.white} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -134,12 +147,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: 14,
+    padding: 12,
   },
-  emoji: { fontSize: 34, width: 44, textAlign: "center" },
   nama: { fontFamily: fonts.semibold, fontSize: 16, color: colors.text },
   sub: { fontFamily: fonts.regular, fontSize: 13, color: colors.textMuted, marginTop: 2 },
-  empty: { textAlign: "center", marginTop: 40, fontFamily: fonts.regular, color: colors.textMuted },
+  empty: { textAlign: "center", marginTop: 40, fontFamily: fonts.regular, color: colors.textMuted, paddingHorizontal: 24 },
   fab: {
     position: "absolute",
     right: 24,

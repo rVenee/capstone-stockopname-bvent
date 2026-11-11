@@ -5,10 +5,26 @@ import {
   Poppins_700Bold,
   useFonts,
 } from "@expo-google-fonts/poppins";
-import { Stack } from "expo-router";
+import { Stack, usePathname, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import { BarangProvider } from "../data/BarangContext";
-import { UserProvider } from "../data/UserContext";
+import { UserProvider, useUser } from "../data/UserContext";
+
+// Kalau sesi habis (atau logout) di layar mana pun, otomatis kembali ke Login
+function Gerbang() {
+  const { siap, masuk } = useUser();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (siap && !masuk && pathname !== "/login" && pathname !== "/") {
+      router.replace("/login");
+    }
+  }, [siap, masuk, pathname]);
+
+  return <Stack screenOptions={{ headerShown: false }} />;
+}
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -24,7 +40,7 @@ export default function RootLayout() {
     <UserProvider>
       <BarangProvider>
         <StatusBar style="light" />
-        <Stack screenOptions={{ headerShown: false }} />
+        <Gerbang />
       </BarangProvider>
     </UserProvider>
   );
